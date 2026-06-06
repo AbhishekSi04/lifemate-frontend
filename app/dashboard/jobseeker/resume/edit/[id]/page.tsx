@@ -24,6 +24,7 @@ import {
   Plus,
   X,
   CheckCircle,
+  Sparkles,
 } from 'lucide-react';
 
 export default function EditResumePage() {
@@ -35,6 +36,8 @@ export default function EditResumePage() {
     const [generating, setGenerating] = useState(false);
 
     const [activeTab, setActiveTab] = useState('personal');
+    const [generatingAI, setGeneratingAI] = useState(false);
+    const [selectedTone, setSelectedTone] = useState('professional');
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -149,6 +152,35 @@ export default function EditResumePage() {
             fetchResume();
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to set default');
+        }
+    };
+
+    const handleGenerateAISummary = async () => {
+        try {
+            setGeneratingAI(true);
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/ai/generate-summary`,
+                {
+                    resumeId: params.id,
+                    tone: selectedTone,
+                    saveToResume: false,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    },
+                }
+            );
+
+            if (response.data.success) {
+                setResume({ ...resume, summary: response.data.data.summary });
+                toast.success(`AI summary generated (${selectedTone} tone)! Review and save when ready.`);
+            }
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.message || 'Failed to generate AI summary';
+            toast.error(errorMsg);
+        } finally {
+            setGeneratingAI(false);
         }
     };
 
@@ -461,14 +493,35 @@ export default function EditResumePage() {
                             </div>
                         </div>
 
-                        {/* Summary */}
+                        {/* AI-Powered Professional Summary */}
                         <div className="border-t pt-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 ">
+                                <label className="block text-sm font-medium text-gray-700 ">Professional Summary</label>
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        value={selectedTone}
+                                        onChange={(e) => setSelectedTone(e.target.value)}
+                                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                    >
+                                        <option value="professional">Professional</option>
+                                        <option value="creative">Creative</option>
+                                        <option value="concise">Concise</option>
+                                    </select>
+                                    <button
+                                        onClick={handleGenerateAISummary}
+                                        disabled={generatingAI}
+                                        className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Sparkles size={16} className={generatingAI ? 'animate-spin' : ''} />
+                                        {generatingAI ? 'Generating...' : '✨ AI Generate'}
+                                    </button>
+                                </div>
+                            </div>
                             <textarea
                                 value={resume.summary || ''}
                                 onChange={(e) => setResume({ ...resume, summary: e.target.value })}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                placeholder="Write a brief professional summary highlighting your key skills and experience..."
+                                placeholder="Write a brief professional summary or click '✨ AI Generate' to create one automatically..."
                                 rows={5}
                                 maxLength={1000}
                             />
