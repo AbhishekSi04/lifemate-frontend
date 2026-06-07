@@ -28,12 +28,14 @@ import {
     Calendar,
     CheckCircle2,
     AlertCircle,
+    Sparkles,
 } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import GradientLoader from "@/app/components/GradientLoader";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@headlessui/react";
+import MatchScoreModal from "@/app/dashboard/jobseeker/components/MatchScoreModal";
 
 export default function JobViewPage() {
     const { id } = useParams();
@@ -50,6 +52,7 @@ export default function JobViewPage() {
     const [uploadingResume, setUploadingResume] = useState(false);
     const [uploadingCover, setUploadingCover] = useState(false);
     const [expandedDescription, setExpandedDescription] = useState(false);
+    const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
@@ -762,6 +765,29 @@ export default function JobViewPage() {
                                     )}
                                 </div>
                             </div>
+                            {/* AI Match Score Card */}
+                            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl shadow-sm border border-purple-200 p-6">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                                        <Sparkles className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">AI Match Score</h3>
+                                        <p className="text-xs text-gray-500">See how well you fit this role</p>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Compare your resume against this job posting to get an AI-powered compatibility score with detailed feedback.
+                                </p>
+                                <button
+                                    onClick={() => setIsMatchModalOpen(true)}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    Check Match Score
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -926,6 +952,14 @@ export default function JobViewPage() {
                         </div>
                     </Dialog.Panel>
                 </Dialog>
+
+                {/* AI Match Score Modal */}
+                <MatchScoreModal
+                    isOpen={isMatchModalOpen}
+                    onClose={() => setIsMatchModalOpen(false)}
+                    jobId={id as string}
+                    jobTitle={job?.title || 'Job'}
+                />
             </div>
             )}
         </>
