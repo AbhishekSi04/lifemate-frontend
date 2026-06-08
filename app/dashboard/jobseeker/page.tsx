@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowUpRight,
+  Sparkles,
 } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
@@ -597,7 +598,7 @@ export default function JobSeekerJobs() {
 
           {/* SEARCH BAR */}
           <div className="mb-8 flex flex-col lg:flex-row lg:items-center gap-4">
-            {/* MODIFICATION: Added lg:flex-1 to make the search bar take up available space */}
+            {/* Search input */}
             <div className="relative w-full max-w-lg mx-auto lg:mx-0 lg:flex-1">
               <input
                 type="text"
@@ -608,10 +609,20 @@ export default function JobSeekerJobs() {
               />
               <Search className="absolute left-3 top-3.5 text-gray-400" size={20} />
             </div>
-            {/* The button container (button element) */}
-            <button className="w-full lg:w-auto text-[#002B6B] font-semibold py-2 px-6 hover:underline rounded-full text-center transition-colors  mt-2 lg:mt-0 whitespace-nowrap">
+
+            {/* AI Search CTA */}
+            <button
+              onClick={() => router.push('/dashboard/jobseeker/ai-search')}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] hover:from-[#6D28D9] hover:to-[#4338CA] text-white rounded-full text-sm font-semibold shadow-md shadow-purple-200 hover:shadow-purple-300 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+            >
+              <Sparkles className="w-4 h-4" />
+              AI Search
+            </button>
+
+            {/* My applications link */}
+            <button className="w-full lg:w-auto text-[#002B6B] font-semibold py-2 px-6 hover:underline rounded-full text-center transition-colors mt-2 lg:mt-0 whitespace-nowrap">
               <Link
-                href={'/dashboard/jobseeker/applications'} // Ensure leading slash for safety
+                href={'/dashboard/jobseeker/applications'}
                 className="flex items-center gap-1"
               >
                 My applications <ArrowUpRight className="inline-block w-4 h-4" />
