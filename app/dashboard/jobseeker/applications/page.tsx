@@ -27,6 +27,7 @@ import {
   BookOpen,
   Zap,
   Star,
+  ChevronLeft,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -246,46 +247,35 @@ export default function MyApplications() {
       <Navbar />
       {/* Main container for the dashboard content, using min-h-screen */}
       <div className="flex flex-col min-h-screen bg-gray-50">
-        {/* Header (Fixed Height) */}
-        <div className="bg-[#002B6B] text-white py-10 relative overflow-hidden flex-shrink-0">
+        {/* ── HERO SECTION ── */}
+        <div className="relative w-full bg-[#002B6B] text-white overflow-hidden flex-shrink-0">
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-90"
+            className="absolute inset-0 bg-cover bg-center opacity-90 scale-105 blur-[1px]"
             style={{ backgroundImage: "url('/new1.png')" }}
           ></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#001b3e]/90 via-[#002b6b]/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#001b3e]/95 via-[#002b6b]/70 to-transparent"></div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 text-center flex flex-col sm:flex-row items-start sm:items-center justify-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold leading-tight">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+            {/* Back button */}
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-1.5 text-blue-200 hover:text-white text-sm mb-6 transition-colors group"
+            >
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              Back
+            </button>
+
+            <div className="text-left">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3 leading-tight tracking-tight">
                 Track{" "}
                 <span className="bg-gradient-to-r from-[#00A3FF] to-[#00E0FF] bg-clip-text text-transparent">
                   Your Applications
                 </span>
               </h1>
-              <p className="text-blue-100 mt-3">
+              <p className="text-blue-100 text-base sm:text-lg max-w-xl mt-3">
                 Monitor your job application status and upcoming interviews in real-time.
               </p>
             </div>
-            {/* <button
-              onClick={() => router.push("/dashboard/jobseeker")}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#00A3FF] to-[#00E0FF] text-[#1A0152] rounded-full text-sm font-semibold shadow-md flex items-center gap-2 hover:shadow-lg transition flex-shrink-0"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Dashboard
-            </button> */}
           </div>
         </div>
 

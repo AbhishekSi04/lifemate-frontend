@@ -433,13 +433,40 @@ export default function JobViewPage() {
                     </div>
                 </div>
             ) : (
-            <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    {/* Breadcrumb and Header */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">Job Details</h1>
-                    </div>
+            <div className="min-h-screen bg-gray-50">
+                {/* ── HERO SECTION ── */}
+                <div className="relative w-full bg-[#002B6B] text-white overflow-hidden mb-8">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-90 scale-105 blur-[1px]"
+                    style={{ backgroundImage: "url('/new1.png')" }}
+                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#001b3e]/95 via-[#002b6b]/70 to-transparent"></div>
 
+                  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+                    {/* Back button */}
+                    <button
+                      onClick={() => router.back()}
+                      className="flex items-center gap-1.5 text-blue-200 hover:text-white text-sm mb-6 transition-colors group"
+                    >
+                      <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                      Back to Jobs
+                    </button>
+
+                    <div className="text-left">
+                      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3 leading-tight tracking-tight">
+                        Job{" "}
+                        <span className="bg-gradient-to-r from-[#00A3FF] to-[#00E0FF] bg-clip-text text-transparent">
+                          Details
+                        </span>
+                      </h1>
+                      <p className="text-blue-100 text-base sm:text-lg max-w-xl mt-3">
+                        View comprehensive details, requirements, and apply for this opportunity.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Main Content - Left Side (2 columns) */}
                         <div className="lg:col-span-2 space-y-6">
