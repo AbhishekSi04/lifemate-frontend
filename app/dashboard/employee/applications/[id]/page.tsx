@@ -253,7 +253,7 @@ export default function ApplicationDetailPage() {
     return String(v);
   };
 
-  const resumeObj = js?.resume;
+  const resumeObj = app?.resume || js?.resume;
   const resumeHref = typeof resumeObj === "string" ? resumeObj : resumeObj?.url;
   const resumeFilename = (resumeObj as any)?.filename || "Resume";
 

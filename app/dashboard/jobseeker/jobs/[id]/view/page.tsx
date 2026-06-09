@@ -54,6 +54,12 @@ export default function JobViewPage() {
     const [expandedDescription, setExpandedDescription] = useState(false);
     const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
 
+    // New states for Resume Selection
+    const [builtResumes, setBuiltResumes] = useState<any[]>([]);
+    const [selectedResumeType, setSelectedResumeType] = useState('profile'); // 'profile', 'built', 'new'
+    const [selectedBuiltResumeId, setSelectedBuiltResumeId] = useState('');
+    const [newResumeFile, setNewResumeFile] = useState<File | null>(null);
+
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
         const user = localStorage.getItem("user");
@@ -156,6 +162,16 @@ export default function JobViewPage() {
                 setCoverLetter(js?.coverLetter ?? null);
             })
             .catch((e) => toast.error(`[JobView] Failed to load profile: ${String(e)}`));
+
+        // Fetch built resumes
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/resume/list`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                setBuiltResumes(data?.data?.resumes ?? data?.resumes ?? []);
+            })
+            .catch((e) => console.error("Failed to load built resumes:", e));
     }, []);
 
     const handleUploadResume = async (file: File) => {
@@ -248,26 +264,32 @@ export default function JobViewPage() {
                 return;
             }
 
-            if (!resume) {
-                toast.error("Please upload a resume before applying!");
-                return;
+            const fd = new FormData();
+
+            if (selectedResumeType === 'profile') {
+                if (!resume) { toast.error("No profile resume available"); return; }
+                fd.append("resume", JSON.stringify(resume));
+            } else if (selectedResumeType === 'built') {
+                if (!selectedBuiltResumeId) { toast.error("Please select a generated resume"); return; }
+                const br = builtResumes.find((r: any) => r._id === selectedBuiltResumeId || r.id === selectedBuiltResumeId);
+                if (br) {
+                    fd.append("resume", JSON.stringify({ url: br.pdfUrl, filename: br.title + '.pdf', publicId: br.pdfPublicId }));
+                }
+            } else if (selectedResumeType === 'new') {
+                if (!newResumeFile) { toast.error("Please upload a new resume file"); return; }
+                fd.append("resume", newResumeFile);
             }
 
-            const payload: any = {
-                resume: resume.url || resume._id || resume,
-            };
-
             if (coverLetter) {
-                payload.coverLetter = coverLetter.url || coverLetter._id || coverLetter;
+                fd.append("coverLetter", JSON.stringify(coverLetter));
             }
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${id}/apply`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(payload),
+                body: fd,
             });
 
             const data = await res.json();
@@ -873,35 +895,63 @@ export default function JobViewPage() {
                         {/* Resume Section */}
                         <div className="mb-4">
                             <label className="text-sm font-medium text-gray-700 mb-2 block">Resume</label>
-                            {resume ? (
+                            
+                            <select
+                                value={selectedResumeType}
+                                onChange={(e) => {
+                                    setSelectedResumeType(e.target.value);
+                                    if (e.target.value === 'built' && builtResumes.length > 0) {
+                                        setSelectedBuiltResumeId(builtResumes[0]._id || builtResumes[0].id);
+                                    }
+                                }}
+                                className="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A0152]"
+                            >
+                                {resume && <option value="profile">Profile Resume ({resume.filename})</option>}
+                                <option value="built">Select Generated Resume (InstantCV)</option>
+                                <option value="new">Upload New Resume</option>
+                            </select>
+
+                            {selectedResumeType === 'profile' && resume && (
                                 <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg p-3">
                                     <div className="flex items-center gap-2 text-sm text-gray-700">
                                         <FileText className="w-4 h-4 text-[#1A0152]" />
                                         <span>{resume.filename || "Resume uploaded"}</span>
                                     </div>
-                                    <a
-                                        href={resume.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-blue-600 text-sm hover:underline"
-                                    >
-                                        View
-                                    </a>
+                                    <a href={resume.url} target="_blank" rel="noreferrer" className="text-blue-600 text-sm hover:underline">View</a>
                                 </div>
-                            ) : (
+                            )}
+
+                            {selectedResumeType === 'built' && (
+                                builtResumes.length > 0 ? (
+                                    <select
+                                        value={selectedBuiltResumeId}
+                                        onChange={(e) => setSelectedBuiltResumeId(e.target.value)}
+                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A0152]"
+                                    >
+                                        {builtResumes.map((br: any) => (
+                                            <option key={br._id || br.id} value={br._id || br.id}>{br.title}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                                        No generated resumes found. Create one in the InstantCV builder first!
+                                    </div>
+                                )
+                            )}
+
+                            {selectedResumeType === 'new' && (
                                 <div className="border border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-600">
-                                    <p className="text-sm">No resume found.</p>
+                                    <p className="text-sm">{newResumeFile ? newResumeFile.name : "Select a file to upload for this job"}</p>
                                     <label className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium rounded-lg cursor-pointer transition-all">
                                         <Upload className="w-4 h-4" />
-                                        {uploadingResume ? "Uploading..." : "Upload Resume"}
+                                        Upload Resume
                                         <input
                                             type="file"
                                             accept=".pdf,.doc,.docx,.txt,.rtf"
                                             onChange={(e) => {
                                                 const f = e.target.files?.[0];
-                                                if (f) handleUploadResume(f);
+                                                if (f) setNewResumeFile(f);
                                             }}
-                                            disabled={uploadingResume}
                                             className="hidden"
                                         />
                                     </label>
@@ -965,10 +1015,6 @@ export default function JobViewPage() {
                             </button>
                             <button
                                 onClick={() => {
-                                    if (!resume) {
-                                        toast.error("Please select or upload a resume before applying!");
-                                        return;
-                                    }
                                     applyJob();
                                     setIsApplyModalOpen(false);
                                 }}
